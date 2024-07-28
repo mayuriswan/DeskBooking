@@ -33,7 +33,7 @@ namespace Desk_Booking_Application.Services.Implementation
             var result = await _userRepository.RegisterUserAsync(user, model.Password);
             if (result.Succeeded)
             {
-                await AddUserToRoleAsync(user, "User");
+                await AddUserToRoleAsync(user, "Employee");
             }
 
             return result;
@@ -58,6 +58,10 @@ namespace Desk_Booking_Application.Services.Implementation
         {
             var user = await _userRepository.FindByEmailAsync(email);
             return await _userRepository.GetUserRolesAsync(user);
+        }
+        public async Task<User> FindByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
         }
     }
 }

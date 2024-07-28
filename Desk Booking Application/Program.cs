@@ -5,6 +5,7 @@ using Desk_Booking_Application.Services.Implementation;
 using Desk_Booking_Application.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +16,20 @@ builder.Services.AddDbContext<DeskBookingContext>(options =>
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<DeskBookingContext>()
     .AddDefaultTokenProviders();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+builder.Services.AddScoped<IBuildingService, BuildingService>();
+
+builder.Services.AddScoped<IFloorRepository, FloorRepository>();
+builder.Services.AddScoped<IFloorService, FloorService>();
+builder.Services.AddScoped<IDeskRepository, DeskRepository>();
+builder.Services.AddScoped<IDeskService, DeskService>();    
+builder.Services.AddScoped<ISummaryService, SummaryService>();
+
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -29,8 +40,21 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
 });
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -43,7 +67,6 @@ using (var scope = app.Services.CreateScope())
     SeedData.Initialize(services, userManager).Wait();
 }
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -53,7 +76,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Add this line to use authentication
+app.UseCors("AllowSpecificOrigin"); // Apply the CORS policy
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

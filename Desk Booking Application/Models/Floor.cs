@@ -7,6 +7,6 @@
         public int BuildingId { get; set; }
         public Building? Building { get; set; }
         public string FloorMap { get; set; } // Path to the floor map image
-        public ICollection<Desk> Desks { get; set; }
+        public ICollection<Desk>? Desks { get; set; }
     }
 }

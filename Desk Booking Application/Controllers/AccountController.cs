@@ -53,7 +53,9 @@ public class AccountController : ControllerBase
             var isValid = await _userService.ValidateUserAsync(model);
             if (isValid)
             {
-                return Ok(new { message = "Login successful" });
+                var user = await _userService.FindByEmailAsync(model.Email);
+                var firstName = user?.FirstName;
+                return Ok(new { message = "Login successful", firstName });
             }
 
             return Unauthorized(new { message = "Invalid login attempt" });

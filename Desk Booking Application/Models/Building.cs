@@ -6,6 +6,6 @@ namespace Desk_Booking_Application.Models
     {
         public int BuildingId { get; set; }
         public string BuildingName { get; set; }
-        public ICollection<Floor> Floors { get; set; }
+        public ICollection<Floor>? Floors { get; set; }
     }
 }
